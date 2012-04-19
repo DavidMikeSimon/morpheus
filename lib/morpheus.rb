@@ -1,6 +1,6 @@
-module Morpheus
-  VERSION = "0.1"
+require 'version'
 
+module Morpheus
   def self.transform(data, options = {})
     unless data.respond_to?(:root)
       raise_err "Input data must be a Nokogiri document or similar", options
