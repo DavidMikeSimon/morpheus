@@ -2,13 +2,13 @@ h2. XSLT and Rails! Huzzah!
 
 I am only being 50% sarcastic. XSLT can actually be quite useful for some situations of view generation as long as you can keep yourself from burning out on its sheer ludicrousness and/or majesty.
 
-h2. Usage
+h3. Usage
 
 Put it in your Gemfile, and then create an @app/transforms@ directory. Write an XSLT stylesheet in there; you can use Haml if you want, or just raw XML.
 
 The name of the file is important; it describes what sort of stuff it transforms from and to. In the simplest case, to transform some XML with a root tag named @report@ into HTML, your transform might be named @report.html.xslt@ (or if it's written in Haml, then @report.html.xslt.haml@).
 
-Here's a simple example `report.html.xslt.haml`:
+Here's a simple example @app/transforms/report.html.xslt.haml@:
 
 <pre>
 <code>
@@ -16,7 +16,8 @@ Here's a simple example `report.html.xslt.haml`:
 %xsl:stylesheet(version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform")
   
 %xsl:template(match="/env/context")
-  -# More about this later, for now just ignore the context tag
+  -# More about this in a moment, for now just make sure we don't output the
+  -# context tag.
 
 %xsl:template(match="/env/report")
   %h1 I am a report! Hey, check me out!
@@ -30,3 +31,49 @@ Here's a simple example `report.html.xslt.haml`:
     %xsl:value-of(select=".")
 </code>
 </pre>
+
+You'll get everything you need under an input tag named @env@. Under that is whatever tag came in with the actual source document, in this case @report@. In our example, @report@ presumably contains just a bunch of simple @report-item@ tags, each with a @name@ attribute. We want to turn that into a simple HTML list.
+
+Now, here's the view (also in Haml, 'cause I like Haml) that will be displaying all the lovely HTML, where @the_report@ is a Nokogiri document:
+
+<pre>
+<code>
+%p
+  Here is your report, O Mighty One:
+
+= Morpheus.transform(@the_report, :tgt_format => "html")
+
+</code>
+</pre>
+
+The `Morpheus.transform` method will look for an appropriately named file in your `transforms` directory, run the input document through it, and return the transformed document, which is easy to display due to Nokogiri's implementation of @to_s@ in appropriate classes.
+
+h3. What's all this about a context?
+
+That's for when you need to give some additional information to your transformation that's separate from your input document. This is similar to how your views have access to the instance variables of their controllers.
+
+For example, you could call @transform@ like so:
+
+<pre>
+<code>
+Morpheus.transform(@some_doc, :tgt_format => "html", :context => self)
+</code>
+</pre>
+
+Now in your XSLT, you'll have access to all your instance variables in @/env/context@, as i.e. @/env/context/foo@ and @/env/context/bar@. In the context, Morpheus understands numbers, strings, arrays (the elements will end up in a series of tags named @val@), and hashes (with the keys as tag names), and also any object that responds to @to_xml@.
+
+h3. Multi-stage transformations
+
+Your transformations can depend on other transformations in turn. A transformation that accepts some other format besides so-called "plain" XML needs to have a @via@ part in its filename.
+
+For example, if I wanted to generate some XSL-FO in order to generate a PDF of my report, then I might decide that it's easier to go from HTML instead of the original XML. In that case, I'd write another stylesheet and keep it in @app/transforms/report.fo.via-html.xslt.haml@. Now you can run something like this:
+
+<pre>
+<code>
+fo_data = Morpheus.transform(@the_report, :tgt_format => "fo")
+</code>
+</pre>
+
+Morpheus will run your report through the HTML transform and then through the FO transform.
+
+By the way, if you're talking about a different "type" of document rather than a different format (for example, if you're converting from a &lt;report&gt; document to a &lt;summary&gt; document, but they're both "XML"), then you'd use "from-whatever" instead of "via-whatever".

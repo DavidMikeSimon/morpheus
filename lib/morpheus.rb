@@ -32,7 +32,7 @@ module Morpheus
 
     transformation_seq.each do |path|
       # FIXME: Why do I need to have this in the loop?
-      # If I put it out, it seems that the first XSLT
+      # If I generate it only once, it seems that the first XSLT
       # transform somehow fouls it up. So, I'm just
       # regenerating it each time. There should be a
       # better way to do this.
