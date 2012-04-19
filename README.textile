@@ -1,11 +1,30 @@
 h2. XSLT and Rails! Huzzah!
 
-I am only being 50% sarcastic. XSLT can actually be quite useful for some
-situations of view generation as long as you
-can keep yourself from burning out on its sheer ludicrousness and/or
-majesty.
+I am only being 50% sarcastic. XSLT can actually be quite useful for some situations of view generation as long as you can keep yourself from burning out on its sheer ludicrousness and/or majesty.
 
 h2. Usage
 
-Put it in your Gemfile, and then create an `app/transforms` directory.
-You can 
+Put it in your Gemfile, and then create an `app/transforms` directory. Write an XSLT stylesheet in there; you can use Haml if you want, or just raw XML.
+
+The name of the file is important; it describes what sort of stuff it transforms from and to. In the simplest case, to transform some XML with a root tag named 'report' into HTML, your transform might be named `report.html.xslt` (or if it's written in Haml, then 'report.html.xslt.haml').
+
+Here's a simple example `report.html.xslt.haml`:
+
+<pre>
+!!! XML
+%xsl:stylesheet(version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform")
+  
+%xsl:template(match="/env/context")
+  -# More about this later, for now just ignore the context tag
+
+%xsl:template(match="/env/report")
+  %h1 I am a report! Hey, check me out!
+  %ul
+    %xsl:apply-templates(select=".")
+
+%xsl:template(match="report-item")
+  %li
+    %label
+      %xsl:value-of(select="@name")
+    %xsl:value-of(select=".")
+</pre>
