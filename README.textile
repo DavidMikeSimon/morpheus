@@ -1,0 +1,11 @@
+h2. XSLT and Rails! Huzzah!
+
+I am only being 50% sarcastic. XSLT can actually be quite useful for some
+situations of view generation as long as you
+can keep yourself from burning out on its sheer ludicrousness and/or
+majesty.
+
+h2. Usage
+
+Put it in your Gemfile, and then create an `app/transforms` directory.
+You can 
