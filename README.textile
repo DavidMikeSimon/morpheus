@@ -4,13 +4,14 @@ I am only being 50% sarcastic. XSLT can actually be quite useful for some situat
 
 h2. Usage
 
-Put it in your Gemfile, and then create an `app/transforms` directory. Write an XSLT stylesheet in there; you can use Haml if you want, or just raw XML.
+Put it in your Gemfile, and then create an @app/transforms@ directory. Write an XSLT stylesheet in there; you can use Haml if you want, or just raw XML.
 
-The name of the file is important; it describes what sort of stuff it transforms from and to. In the simplest case, to transform some XML with a root tag named 'report' into HTML, your transform might be named `report.html.xslt` (or if it's written in Haml, then 'report.html.xslt.haml').
+The name of the file is important; it describes what sort of stuff it transforms from and to. In the simplest case, to transform some XML with a root tag named @report@ into HTML, your transform might be named @report.html.xslt@ (or if it's written in Haml, then @report.html.xslt.haml@).
 
 Here's a simple example `report.html.xslt.haml`:
 
 <pre>
+<code>
 !!! XML
 %xsl:stylesheet(version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform")
   
@@ -27,4 +28,5 @@ Here's a simple example `report.html.xslt.haml`:
     %label
       %xsl:value-of(select="@name")
     %xsl:value-of(select=".")
+</code>
 </pre>
